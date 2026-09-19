@@ -1,5 +1,7 @@
 # NetSim3D
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/the-sudipta/netsim3d)
+
 Upload a photo, watch a real neural network read it in 3D, stage by stage,
 and see the class it lands on.
 
@@ -44,69 +46,131 @@ prints a pass/fail list.
 
 ---
 
-## Run it on GitHub, in a Codespace
+## Run it on GitHub Codespaces
 
-A codespace is a Linux machine attached to your repository, with a terminal
-and port forwarding. It runs this project exactly as your laptop does,
-because it is the same thing: a localhost, just someone else's. No rewrite,
-no hosting account.
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/the-sudipta/netsim3d)
 
-**1. Put the project on GitHub.** In the project folder:
+A codespace is a Linux machine attached to this repository, with a terminal
+and port forwarding. It runs the project exactly as a laptop does, because it
+is the same thing: a localhost, just someone else's. Nothing to install, and
+`.devcontainer/` is already committed, so the machine arrives ready.
 
-```
-git init
-git add .
-git commit -m "NetSim3D"
-git branch -M main
-git remote add origin https://github.com/YOUR-NAME/netsim3d.git
-git push -u origin main
-```
+### Start it
 
-The repository can be private; codespaces work either way. `.gitignore`
-already keeps `.venv/`, `weights/` and `data/` out, so you are pushing about
-250 KB of source, not a gigabyte of PyTorch.
+**1. Create the codespace.** On the repository page: **Code** → **Codespaces**
+→ **Create codespace on main**. Or click the badge above.
 
-**2. Open a codespace.** On the repository page: **Code** → **Codespaces** →
-**Create codespace on main**. `.devcontainer/` is already here, so it picks
-Python 3.12, installs the CPU build of PyTorch, and pre-downloads the model
-weights. First creation takes three to five minutes. Watch the terminal; it
-finishes with `Ready. Start it with: ./run.sh`.
-
-**3. Start it.**
+**2. Wait for the build.** Three to five minutes the first time. The terminal
+installs the CPU build of PyTorch and pre-downloads the ResNet-50 weights, so
+your first upload is instant rather than stalling for 100 MB while someone
+watches. It finishes with:
 
 ```
-./run.sh
+Ready. Start it with:   ./run.sh
 ```
 
-It detects the codespace and uses the container's Python directly rather than
-building a second virtual environment, which would cost about a gigabyte of
-your storage quota for nothing.
+**3. Start the server.**
 
-**4. Open it.** A notification offers to open port 8765. If you miss it, use
-the **Ports** tab at the bottom of the editor and click the globe icon next
-to 8765. The URL looks like `https://something-8765.app.github.dev`.
+```
+bash run.sh
+```
 
-**5. Share it.** Ports are private by default, meaning only you can open
-them. In the **Ports** tab, right-click 8765 → **Port Visibility** →
-**Public**, then send the URL. Anyone with the link can use it while the
-codespace is running, with no GitHub account needed.
+Use `bash run.sh` rather than `./run.sh`. If the repository was pushed from
+Windows, the Unix executable bit was lost in transit and `./run.sh` fails with
+`Permission denied`. `bash run.sh` always works. To fix it permanently, run
+this once from any machine and push:
 
-**6. Stop it when you are done.** On github.com/codespaces, or **Codespaces:
-Stop Current Codespace** from the command palette. It also stops itself after
-30 minutes idle.
+```
+git update-index --chmod=+x run.sh
+```
 
-### What this costs
+**4. Open it.** A notification offers port 8765: click **Open in Browser**. If
+you miss it, use the **Ports** tab beside the terminal and click the globe
+icon next to 8765. The URL looks like:
 
-Personal GitHub accounts include 120 Codespaces core-hours and 15 GB of
-storage per month. Core-hours are CPU cores multiplied by runtime, so a
-2-core machine burns 2 core-hours per real hour: roughly **60 hours of
-runtime a month, free**. Storage is charged for as long as the codespace
-exists, stopped or not, so delete codespaces you are finished with.
+```
+https://cautious-guide-xxxxxxx-8765.app.github.dev
+```
 
-### What it is not
+**5. Upload a car photo.** Same app, same simulation, running on GitHub's
+machine instead of yours.
 
-The link dies when the codespace stops, so this is a session you share for an
-afternoon, not a permanent demo URL for a paper. For that, the model has to
+### Share the link with someone else
+
+Forwarded ports are **private** by default, so anyone you send the URL to gets
+a GitHub sign-in page instead of the app.
+
+In the **Ports** tab, right-click 8765 → **Port Visibility** → **Public**.
+Then copy the address and send it. Anyone with the link can use it, no GitHub
+account needed, for as long as the codespace is running.
+
+Visibility is per codespace, so check it again after a restart.
+
+### How long it stays active
+
+**A codespace stops after 30 minutes of inactivity.** That is the default; you
+can set anything from 5 minutes to 240 minutes (4 hours) under your profile →
+**Settings** → **Codespaces** → **Default idle timeout**. The new value applies
+to codespaces you create afterwards, not to ones that already exist.
+
+What counts as activity matters more than the number:
+
+| Resets the 30-minute timer | Does not |
+|---|---|
+| Typing or moving the mouse in the editor | Leaving the browser tab open and idle |
+| Any terminal output, including the server's request log | A shared port with nobody using it |
+| Someone loading the page or uploading an image, because Flask logs every request to the terminal | A background process that prints nothing |
+
+That third row is the useful one. While a visitor is actually using the demo,
+each request prints a line in the terminal running `run.sh`, which resets the
+idle timer. **So the codespace stays up as long as someone is using it**, and
+shuts down about half an hour after the last person stops. You do not need to
+sit there keeping it awake during a demo.
+
+Two consequences worth knowing:
+
+- You are billed for compute for the whole time it is **running**, whether or
+  not you are using it. Stop it when you are finished rather than leaving it
+  idling for 30 minutes.
+- Stopping does **not** delete it. Your files, the installed packages and the
+  cached model weights all survive, and restarting takes seconds instead of
+  minutes. Stopped codespaces are kept for 30 days by default, then deleted
+  automatically. That retention period is configurable from 0 to 30 days in
+  the same settings page.
+
+### Stopping, restarting and deleting
+
+Stop it from the command palette (**Codespaces: Stop Current Codespace**) or
+at [github.com/codespaces](https://github.com/codespaces).
+
+Restart it from the same page, or through **Code** → **Codespaces** on the
+repository. Then `bash run.sh` again.
+
+**Storage is charged for as long as a codespace exists, stopped or not.**
+Delete ones you have finished with rather than just stopping them.
+
+### What it costs
+
+Personal GitHub accounts include **120 Codespaces core-hours and 15 GB of
+storage per month**. Core-hours are CPU cores multiplied by runtime, so a
+2-core machine consumes 2 core-hours per real hour: roughly **60 hours of
+runtime a month, free**. This project is comfortable on 2 cores.
+
+### Pulling in later changes
+
+The codespace holds its own clone. After pushing changes from elsewhere:
+
+```
+git pull
+```
+
+If `.devcontainer/` changed, rebuild the container: command palette →
+**Codespaces: Rebuild Container**.
+
+### What this is not
+
+The URL dies when the codespace stops, so this is a session you share for an
+afternoon, not a permanent demo link for a paper. For that, the model has to
 run in the visitor's browser (ONNX Runtime Web on GitHub Pages) or on a host
 that keeps a Python process alive.
 
@@ -114,9 +178,22 @@ that keeps a Python process alive.
 
 `.github/workflows/check.yml` runs the project's own test suites on every
 push: compiles every Python file, runs the payload-contract self-test, parses
-both browser modules, and cross-checks that every DOM id and CSS class the
-front end uses actually exists. It needs no model and no GPU, so it finishes
-in under a minute and stays inside the free Actions allowance.
+both browser modules, and verifies that every DOM id and CSS class the front
+end uses actually exists. No model and no GPU needed, so it finishes in under
+a minute and stays inside the free Actions allowance. Results appear under the
+**Actions** tab.
+
+### Codespace troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `./run.sh: Permission denied` | Use `bash run.sh`. Permanent fix: `git update-index --chmod=+x run.sh`, commit, push |
+| `bad interpreter: No such file or directory` | `run.sh` picked up Windows line endings. `.gitattributes` prevents this; to repair a file that already has them, `sed -i 's/\r$//' run.sh` |
+| Your visitor sees a GitHub sign-in page | Port 8765 is still private. Ports tab → right-click → Port Visibility → Public |
+| Port 8765 never appears | The server did not start. Read the terminal where you ran `bash run.sh` |
+| The build failed | Command palette → **Codespaces: Rebuild Container**, or run `bash .devcontainer/setup.sh` by hand and read the error |
+| It stopped while you were mid-demo | 30 minutes passed with no terminal output. Restart it and raise the idle timeout in Settings → Codespaces |
+| Out of core-hours | 120 per month on a personal account. Delete stopped codespaces, they keep consuming the storage quota |
 
 ## What you are looking at
 
@@ -319,10 +396,8 @@ download, so they are only fetched once either way.
 | Install dies resolving numpy's build dependencies | An old copy of `run.bat` that put `--index-url https://download.pytorch.org/whl/cpu` before the base packages. That flag replaces PyPI instead of adding to it. Current launcher installs base packages first |
 | PyTorch install fails some other way | No internet, a corporate proxy, or low disk space. It needs about 1 GB free |
 | Want to see which interpreters you have | `run.bat pythons` |
-| Codespace: the forwarded URL shows a GitHub login page | The port is private. Ports tab → right-click 8765 → Port Visibility → Public |
-| Codespace: port 8765 never appears | The server did not start. Look at the terminal where you ran `./run.sh` |
-| Codespace: setup failed | Rebuild with the command palette → Codespaces: Rebuild Container, or run `bash .devcontainer/setup.sh` by hand |
-| Codespace ran out of hours | 120 core-hours a month on a personal account. Delete stopped codespaces, they keep consuming the storage quota |
+| Anything specific to Codespaces | see the Codespace troubleshooting table above |
+| Codespace: `bad interpreter: No such file or directory` | `run.sh` has Windows line endings. `.gitattributes` prevents this; if a file already has them, `sed -i 's/\r$//' run.sh` |
 | "Could not load the 3D library" | The CDN is blocked. See *Offline use* |
 | "Cannot reach the Python server" | The run window was closed. Start `run.bat` again |
 | "Model failed to load" with a connection error | The weights need internet once |
