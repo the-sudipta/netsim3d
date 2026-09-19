@@ -1,0 +1,12 @@
+# Base packages. Install these FIRST, then torch:
+#
+#   pip install -r requirements.txt
+#   pip install torch torchvision
+#
+# Do not install torch with --index-url https://download.pytorch.org/whl/cpu
+# before these. That flag replaces PyPI rather than adding to it, so pip then
+# cannot find numpy's build dependencies and the install fails.
+
+flask>=3.0
+pillow>=10.0
+numpy>=1.24

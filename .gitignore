@@ -1,0 +1,17 @@
+# environments
+.venv/
+__pycache__/
+*.pyc
+
+# things the app or training produces
+weights/
+data/
+samples/*.jpg
+samples/*.jpeg
+samples/*.png
+samples/*.webp
+*.webm
+
+# editors
+.DS_Store
+.idea/

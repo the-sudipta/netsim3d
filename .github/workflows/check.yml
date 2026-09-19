@@ -1,0 +1,56 @@
+# Runs the project's own test suites on every push, on GitHub's runners.
+# No model and no torch needed: the self-test uses synthetic tensors, so this
+# stays fast and free.
+name: checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install base dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --only-binary=:all: -r requirements.txt
+
+      - name: Compile every Python file
+        run: python -m py_compile server/*.py finetune.py
+
+      - name: Server routes and payload contract
+        run: python server/selftest.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Parse the browser modules
+        run: |
+          cp static/viz.js /tmp/viz.mjs
+          cp static/main.js /tmp/main.mjs
+          node --check /tmp/viz.mjs
+          node --check /tmp/main.mjs
+
+      - name: Cross-check DOM ids and CSS classes
+        run: |
+          python - <<'PY'
+          import re, sys
+          h = open('static/index.html').read()
+          j = open('static/main.js').read()
+          css = open('static/style.css').read()
+          ids = set(re.findall(r"\$\('([^']+)'\)", j)) - set(re.findall(r'id="([^"]+)"', h))
+          cls = set(re.findall(r"classList\.(?:add|toggle|remove)\('([^']+)'", j))
+          missing_cls = sorted(c for c in cls if f'.{c}' not in css)
+          if ids or missing_cls:
+              sys.exit(f"missing ids {sorted(ids)}, missing classes {missing_cls}")
+          print("ids and classes all resolve")
+          PY
